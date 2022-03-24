@@ -1,0 +1,42 @@
+from urllib.request import urlopen
+import requests
+from bs4 import BeautifulSoup
+import lxml
+import pandas as pd
+
+
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"}
+
+url1 = 'https://finance.eastmoney.com/a/cgnjj.html'
+
+url = 'https://finance.eastmoney.com/a/cgnjj' #list all links
+url2 = '.html'
+link_list = [url1]
+for i in range(2,6):
+    fin_url = url + '_' + str(i) + url2
+    link_list.append(fin_url)
+
+mylist = []
+for l in link_list:
+    result = requests.get(l,headers = headers)
+    soup = BeautifulSoup(result.content,'lxml') #'html.parser'
+    #print(soup)
+    title_all = soup.find_all('div',attrs={'class':'text text-no-img'})
+    #print(title_all)
+
+    time_all = soup.find_all('p', attrs={'time'})
+    print(len(title_all))
+    for i in title_all:
+        title = i.a
+        text = title.get_text().replace(" ", "").replace("\n", "")
+        link = title['href']
+        mylist.append((text, link))
+
+    for i in time_all:
+        time= i.get_text().replace(" ", "").replace("\n", "")
+        #mylist.append((time))
+
+#df = pd.DataFrame(mylist)
+#df.columns = ['text','link','time']
+#print(df)
+#df.to_csv('D:\\DINGYUSUN\\WEBSCRIPT\\output.csv', encoding='utf_8_sig', index=False)
