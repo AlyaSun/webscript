@@ -1,8 +1,12 @@
+name = ['半导体','硅','集成电路','镍']
+policy_name = ['数字信息','商务部','财政部']
+
 from urllib.request import urlopen
 import requests
 from bs4 import BeautifulSoup
 import lxml
 import pandas as pd
+from datetime import *
 
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"}
@@ -54,5 +58,9 @@ province_df.insert(1,'province',city)
 # print(province_df)
 
 # province_df.to_csv("C:\\Dingyu\\web\\output_province_22Q2.csv",mode = 'a',encoding='utf_8_sig', index=False, header = False )
-
+province_df['time1'] =  province_df['time'].map(lambda x: datetime.strptime(x, "%m月%d日%H:%M"))
+province_df['month'] = province_df['time1'].map(lambda x: x.month)
+province_df['day'] = province_df['time1'].map(lambda x : x.day)
+drop = ['time1']
+province_df = province_df.drop(columns = drop)
 province_df.to_csv('C:\\Dingyu\\web\\output_province_22Q2.csv', encoding='utf_8_sig', index=False)
