@@ -7,12 +7,13 @@ import pandas as pd
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"}
 
+dlb = 'https://so.eastmoney.com/news/s?keyword=%E7%94%B5%E8%B7%AF%E6%9D%BF&sort=time&type=title'
 url1 = 'https://finance.eastmoney.com/a/cgnjj.html'
 
 url = 'https://finance.eastmoney.com/a/cgnjj' #list all links
 url2 = '.html'
 link_list = [url1]
-for i in range(2,6):
+for i in range(2,25): # we can use 14 for one day
     fin_url = url + '_' + str(i) + url2
     link_list.append(fin_url)
 
@@ -23,20 +24,35 @@ for l in link_list:
     soup = BeautifulSoup(result.content,'lxml') #'html.parser'
     #print(soup)
     title_all = soup.find_all('div',attrs={'class':'text'})
-    #print(title_all)
+
 
     time_all = soup.find_all('p', attrs={'time'})
     for i in title_all:
         title = i.a
-        text = title.get_text().replace(" ", "").replace("\n", "")
+        text = title.get_text().replace(" ", "").replace("\n", "").replace("\r","")
         link = title['href']
         mylist.append((text, link))
 
     for i in time_all:
-        time= i.get_text().replace(" ", "").replace("\n", "")
+        time= i.get_text().replace(" ", "").replace("\n", "").replace("\r","")
         time_list.append((time))
 
 df = pd.DataFrame(mylist)
 df.columns = ['text','link']
 df.insert(2,'time',time_list)
-print(df)
+# print(df)
+province = ('河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','深圳','国家','半导体')
+province_df = df.loc[df['text'].str.contains('|'.join(province))]
+city = []
+for i in province_df['text']:
+    for j in province:
+        if j in i:
+            city.append(j)
+# print(city)
+province_df.insert(1,'province',city)
+
+# print(province_df)
+
+# province_df.to_csv("C:\\Dingyu\\web\\output_province_22Q2.csv",mode = 'a',encoding='utf_8_sig', index=False, header = False )
+
+province_df.to_csv('C:\\Dingyu\\web\\output_province_22Q2.csv', encoding='utf_8_sig', index=False)
