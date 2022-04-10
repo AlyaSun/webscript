@@ -1,0 +1,25 @@
+import pandas as pd
+
+
+df = pd.read_csv("D:\\DINGYUSUN\\WEBSCRIPT\\output.csv")
+
+
+province = ('河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','深圳','国家','半导体')
+# province_df = df.loc[df['text'].str.contains('|'.join(province))]
+city = []
+for i in df['text']:
+    n = 0
+    for j in province:
+        if j in i:
+            n += 1
+            if n > 1:
+                continue
+            else:
+                city.append(j)
+
+df.insert(1,'province',city)
+# print(df)
+print(len(city))
+# df.insert(1,'province',city)
+df = df.drop_duplicates(subset=['text'])
+print(df)
