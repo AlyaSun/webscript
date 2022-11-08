@@ -9,7 +9,7 @@ import pandas as pd
 from datetime import *
 
 
-headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"}
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"}
 
 dlb = 'https://so.eastmoney.com/news/s?keyword=%E7%94%B5%E8%B7%AF%E6%9D%BF&sort=time&type=title'
 url1 = 'https://finance.eastmoney.com/a/cgnjj.html'
@@ -17,7 +17,7 @@ url1 = 'https://finance.eastmoney.com/a/cgnjj.html'
 url = 'https://finance.eastmoney.com/a/cgnjj' #list all links
 url2 = '.html'
 link_list = [url1]
-for i in range(2,25): # we can use 14 for one day
+for i in range(2,3): # we can use 14 for one day
     fin_url = url + '_' + str(i) + url2
     link_list.append(fin_url)
 
@@ -26,11 +26,13 @@ time_list = []
 for l in link_list:
     result = requests.get(l,headers = headers)
     soup = BeautifulSoup(result.content,'lxml') #'html.parser'
-    #print(soup)
-    title_all = soup.find_all('div',attrs={'class':'text'})
+    # print(soup)
 
+    title_all = soup.find_all('div',attrs={'title'})
+    # print(title_all)
 
     time_all = soup.find_all('p', attrs={'time'})
+    # print(time_all)
     for i in title_all:
         title = i.a
         text = title.get_text().replace(" ", "").replace("\n", "").replace("\r","")
@@ -41,30 +43,37 @@ for l in link_list:
         time= i.get_text().replace(" ", "").replace("\n", "").replace("\r","")
         time_list.append((time))
 
-df = pd.DataFrame(mylist)
-df.columns = ['text','link']
-df.insert(2,'time',time_list)
+province_df = pd.DataFrame(mylist)
+# print(province_df)
+
+province_df.columns = ['text','link']
+# province_df.insert(2,'time',time_list)
 # print(df)
-province = ('河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','深圳','国家','半导体')
-province_df = df.loc[df['text'].str.contains('|'.join(province))]
-city = []
-for i in province_df['text']:
-    for j in province:
-        if j in i:
-            city.append(j)
+# print(province_df)
+province = ('北京','天津','河北','山西','内蒙古','辽宁','吉林','黑龙江','上海','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','广西','海南','重庆','四川','贵州','云南','西藏','陕西','甘肃','青海','宁夏','新疆','深圳','国家','半导体','新能源','华为','芯片','联想','宁王','宁德时代','电子','电脑')
+# province_df = province_df.loc[province_df['text'].str.contains('|'.join(province))]
+province_df = province_df.loc[pd.Series(province_df['text']).str.contains('|'.join(province))]
+
+
+# print(time_list)
+# city = []
+# for i in province_df['text']:
+#     for j in province:
+#         if j in i:
+#             city.append(j)
 # print(city)
-province_df.insert(1,'province',city)
+# province_df.insert(1,'province',city)
 
 # print(province_df)
 
-# province_df.to_csv("C:\\Dingyu\\web\\output_province_22Q2.csv",mode = 'a',encoding='utf_8_sig', index=False, header = False )
-province_df['time1'] =  province_df['time'].map(lambda x: datetime.strptime(x, "%m月%d日%H:%M"))
-province_df['month'] = province_df['time1'].map(lambda x: x.month)
-province_df['day'] = province_df['time1'].map(lambda x : x.day)
-drop = ['time1']
-province_df = province_df.drop(columns = drop)
-province_df.to_csv('C:\\Dingyu\\web\\output_province_22Q2.csv', encoding='utf_8_sig', index=False)
 
+# province_df['time1'] =  province_df['time'].map(lambda x: datetime.strptime(x, "%m月%d日%H:%M"))
+# province_df['month'] = province_df['time1'].map(lambda x: x.month)
+# province_df['day'] = province_df['time1'].map(lambda x : x.day)
+# drop = ['time1']
+# province_df = province_df.drop(columns = drop)
 
+print(province_df)
 
-df.drop_duplicates(subset=['text'])
+# province_df.to_csv('C:\\Dingyu\\web\\output_province_22Q3_no.csv', encoding='utf_8_sig', index=False)
+# province_df.to_csv("C:\\Dingyu\\web\\output_province_22Q2_no.csv",mode = 'a',encoding='utf_8_sig', index=False, header = False )
